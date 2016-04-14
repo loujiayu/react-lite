@@ -1,3 +1,6 @@
+// var $ = document.querySelector.bind(document);
+// var $$ = document.querySelectorAll.bind(document);
+
 //component类，用来表示文本在渲染，更新，删除时应该做些什么事情
 function ReactDOMTextComponent(text) {
     //存下当前的字符串
@@ -18,7 +21,7 @@ ReactDOMTextComponent.prototype.receiveComponent = function(nextText) {
     if (nextStringText !== this._currentElement) {
         this._currentElement = nextStringText;
         //替换整个节点
-        $('[data-reactid="' + this._rootNodeID + '"]').html(this._currentElement);
+        $('[data-reactid="' + this._rootNodeID + '"]').innerHTML = this._currentElement;
 
     }
 }
@@ -531,10 +534,9 @@ React = {
             //原型继承，继承超级父类
         Constructor.prototype = new ReactClass();
         Constructor.prototype.constructor = Constructor;
-        //混入spec到原型
-        $.extend(Constructor.prototype, spec);
+        // todo: mixin staff
+        Object.assign(Constructor.prototype, spec)
         return Constructor;
-
     },
     createElement: function(type, config, children) {
         var props = {},propName;
@@ -552,7 +554,7 @@ React = {
         //支持两种写法，如果只有一个参数，直接赋值给children，否则做合并处理
         var childrenLength = arguments.length - 2;
         if (childrenLength === 1) {
-            props.children = $.isArray(children) ? children : [children] ;
+            props.children = Array.isArray(children) ? children : [children] ;
         } else if (childrenLength > 1) {
             var childArray = Array(childrenLength);
             for (var i = 0; i < childrenLength; i++) {
@@ -565,8 +567,8 @@ React = {
     render: function(element, container) {
         var componentInstance = instantiateReactComponent(element);
         var markup = componentInstance.mountComponent(React.nextReactRootIndex++);
-        $(container).html(markup);
+        container.innerHTML = markup
         //触发完成mount的事件
-        $(document).trigger('mountReady');
+        trigger(container, 'mountReady')
     }
 }
